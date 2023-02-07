@@ -42,7 +42,7 @@ public class MarkovChain {
 		for (int i = 0; i < stateVector.getNumCols(); i++) {
 			stateVectorSum += stateVector.getElement(i);
 		}
-		if (stateVectorSum != 1.0) {
+		if (stateVectorSum < 0.99 || stateVectorSum > 1.01) {
 			return false;
 		}
 
@@ -52,7 +52,7 @@ public class MarkovChain {
 			for (int j = 0; j < transitionMatrix.getNumCols(); j++) {
 				rowSum += transitionMatrix.getElement(i, j);
 			}
-			if (rowSum != 1.0) {
+			if (rowSum < 0.99 || rowSum > 1.01) {
 				return false;
 			}
 		}
@@ -67,15 +67,20 @@ public class MarkovChain {
 	 * @return resulting Matrix object
 	 */
 	public Matrix computeProbabilityMatrix(int numSteps) {
+		
+		Matrix resultMat = this.transitionMatrix;
+		
 		// Returns null if isValid is false
 		if (isValid() == false) {
 			return null;
 		}
-		Matrix resultMat = stateVector;
+		
 		for (int i = 0; i < numSteps - 1; i++) {
-			resultMat = resultMat.multiply(transitionMatrix);
+			resultMat = transitionMatrix.multiply(resultMat);
 		}
-
+		
+		resultMat = this.stateVector.multiply(resultMat);
+ 
 		return resultMat;
 
 	}
